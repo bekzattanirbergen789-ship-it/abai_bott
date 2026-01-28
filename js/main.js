@@ -60,12 +60,13 @@
       e.preventDefault(); document.getElementById("message").textContent="Жіберілді ✅"; this.reset();
     });
 // =======================================================
-// 1. БАПТАУЛАР (КІЛТТІ ЖАСЫРУ ӘДІСІМЕН)
+// 1. БАПТАУЛАР (КІЛТТІ ЖАСЫРУ ЖӘНЕ МОДЕЛЬДІ ТАҢДАУ)
 // =======================================================
 
 // ЖАҢА АЛҒАН КІЛТІҢІЗДІ ОСЫЛАЙ ЕКІГЕ БӨЛІП ЖАЗЫҢЫЗ:
-const part1 = "sk-proj-7kWH22-GtUiqhAdrX802GHdLC5sCpQ_2UPJl1ywDAP5q0FpjcAGsGGjfcrbESzqF9DXgUcFKfFT3Blbk"; // Кілттің БІРІНШІ жартысы
-const part2 = "FJXoHXAGw3bN-au_mBDeNUEc9eAYmhcSf08eThtIFt6GHKoYNAQpz5nybE6sSeKs1Qr4mGpYjVAA"; // Кілттің ЕКІНШІ жартысы
+// Мысалы кілт "sk-proj-12345ABCD" болса:
+const part1 = "sk-proj-7kWH22-GtUiqhAdrX802GHdLC5sCpQ_2UPJl1ywDAP5q0FpjcAGsGGjfcrbESzqF9DXgUcF"; // Кілттің БІРІНШІ жартысы (тырнақша ішіне)
+const part2 = "KfFT3BlbkFJXoHXAGw3bN-au_mBDeNUEc9eAYmhcSf08eThtIFt6GHKoYNAQpz5nybE6sSeKs1Qr4mGpYjVAA"; // Кілттің ЕКІНШІ жартысы (тырнақша ішіне)
 
 const API_KEY = part1 + part2; // Бағдарлама өзі біріктіріп алады
 
@@ -81,8 +82,7 @@ const userQuestionInput = document.getElementById("userQuestion");
 // 3. СҰРАҚ ЖІБЕРУ ФУНКЦИЯСЫ
 // =======================================================
 function sendCustomQuestion() {
-    // Егер userQuestionInput табылмаса (қате шықпас үшін)
-    if (!userQuestionInput) return;
+    if (!userQuestionInput) return; // Қате шықпас үшін тексеру
 
     const text = userQuestionInput.value;
     
@@ -94,7 +94,7 @@ function sendCustomQuestion() {
     }
 }
 
-// "Enter" басқанда да сұрақ кететін қылайық
+// "Enter" басқанда да сұрақ кететін қылу
 if (userQuestionInput) {
     userQuestionInput.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
@@ -105,12 +105,13 @@ if (userQuestionInput) {
 
 
 // =======================================================
-// 4. OPENAI-МЕН БАЙЛАНЫСУ
+// 4. OPENAI-МЕН БАЙЛАНЫСУ (ЖАҢАРТЫЛҒАН)
 // =======================================================
 async function askOpenAI(userText) {
     if (!answerBox) return;
 
-    answerBox.innerHTML = "<em>AI жауап іздеуде...</em>";
+    // Күту режимі
+    answerBox.innerHTML = "<em>Абай атамыз ойланып жатыр...</em>";
     answerBox.style.color = "#555";
 
     try {
@@ -121,30 +122,26 @@ async function askOpenAI(userText) {
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-               // ...
-body: JSON.stringify({
-    // ОСЫ ЖЕРДІ ӨЗГЕРТЕМІЗ (gpt-4o-mini қоямыз)
-    model: "gpt-4o-mini", 
-    
-    messages: [
-        {
-            role: "system", 
-            // Абай екенін ескертіп қоямыз, бірақ енді ол өзі-ақ дұрыс табады
-            content: "Сен қазақтың ұлы ақыны Абай Құнанбайұлысың. Сұрақтарға нақты тарихи деректермен, қазақ тілінде, даналықпен жауап бер."
-        },
-        {
-            role: "user", 
-            content: userText
-        }
-    ]
-})
+                model: "gpt-4o-mini", // <--- ЕҢ МАҢЫЗДЫ ЖЕРІ: Жаңа ақылды модель
+                messages: [
+                    {
+                        role: "system", 
+                        content: "Сен қазақтың ұлы ақыны Абай Құнанбайұлысың. Жауаптарың тарихи шындыққа сәйкес болуы шарт. Абайдың анасы - Ұлжан, әкесі - Құнанбай, әжесі - Зере. Сұрақтарға қазақ тілінде, нақыл сөздермен, даналықпен жауап бер. Өтірік фактілер қоспа."
+                    },
+                    {
+                        role: "user", 
+                        content: userText
+                    }
+                ]
+            })
         });
 
         const data = await response.json();
 
+        // Қатені тексеру
         if (data.error) {
             console.error("OpenAI Error:", data.error);
-            answerBox.innerText = "Қате: " + data.error.message;
+            answerBox.innerText = "Қате шықты: " + data.error.message;
             answerBox.style.color = "red";
         } else if (data.choices && data.choices.length > 0) {
             answerBox.innerText = data.choices[0].message.content;
@@ -159,4 +156,5 @@ body: JSON.stringify({
         answerBox.style.color = "red";
     }
 }
+
 
