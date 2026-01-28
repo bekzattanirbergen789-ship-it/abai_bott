@@ -59,18 +59,23 @@
 
   <!-- Абай Бот -->
   <div id="abaiBot" class="container" style="background:#e3f2fd; margin-top:30px;">
-    <h2>🤖 Абай Бот</h2>
+    <h2>🤖 Ai chat </h2>
     <p>Мына батырмалар арқылы сұрақ қойсаңыз, мен Абай жайлы нақты жауап беремін!</p>
-    <div class="bot-buttons">
-      <button data-q="Абай кім?">Абай кім?</button>
-      <button data-q="Қара сөздер деген не?">Қара сөздер деген не?</button>
-      <button data-q="Абай қай жылы туған?">Абай қай жылы туған?</button>
-      <button data-q="Абайдың әндері бар ма?">Абайдың әндері бар ма?</button>
-      <button data-q="Абайдың шығармашылығы">Абайдың шығармашылығы</button>
-      <button data-q="Абайдың өмірі қандай болды?">Абайдың өмірі қандай болды?</button>
-      <button data-q="Абайдың әкесі кім?">Абайдың әкесі кім?</button>
-      <button data-q="Абайдың туындылары">Абайдың туындылары</button>
-    </div>
+    <div class="chat-container" style="text-align: center; margin-top: 30px;">
+    
+    <input type="text" id="userQuestion" placeholder="Абай атаға сұрағыңызды жазыңыз..." 
+           style="width: 60%; padding: 15px; font-size: 16px; border-radius: 10px; border: 1px solid #ccc;">
+    
+    <button onclick="sendCustomQuestion()" 
+            style="padding: 15px 30px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 10px; cursor: pointer; margin-left: 10px;">
+        Жіберу
+    </button>
+
+</div>
+
+<div id="botAnswer" style="margin-top: 30px; font-size: 18px; padding: 20px; background-color: #f9f9f9; border-radius: 10px; min-height: 50px;">
+    Жауап осы жерге шығады...
+</div>
     <p id="botAnswer" style="margin-top:15px; font-weight:bold;"></p>
   </div>
 
@@ -81,4 +86,5 @@
   <script src="js/main.js">
   </script>
 </body>
+
 </html>
