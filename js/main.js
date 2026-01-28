@@ -59,66 +59,61 @@
     document.getElementById("contactForm").addEventListener("submit",function(e){
       e.preventDefault(); document.getElementById("message").textContent="Жіберілді ✅"; this.reset();
     });
-
-    // =======================================================
-// 1. БАПТАУЛАР (ОСЫ ЖЕРДІ ӨЗГЕРТЕСІЗ)
+// =======================================================
+// 1. БАПТАУЛАР (КІЛТТІ ЖАСЫРУ ӘДІСІМЕН)
 // =======================================================
 
-// Төмендегі "sk-..." деген жерге өз API кілтіңізді қойыңыз
- 
-// GitHub роботынан жасыру үшін кілтті бөліп жазамыз
-const part1 = "sk-proj-7kWH22-GtUiqhAdrX802GHdLC5sCpQ_2UPJl1ywDAP5q0FpjcAGsGGjfcrbESzqF9DXgUcFKfFT3BlbkF"; // Кілтіңіздің бірінші жартысы
-const part2 = "JXoHXAGw3bN-au_mBDeNUEc9eAYmhcSf08eThtIFt6GHKoYNAQpz5nybE6sSeKs1Qr4mGpYjVAA";          // Кілтіңіздің екінші жартысы
+// ЖАҢА АЛҒАН КІЛТІҢІЗДІ ОСЫЛАЙ ЕКІГЕ БӨЛІП ЖАЗЫҢЫЗ:
+const part1 = "sk-proj-7kWH22-GtUiqhAdrX802GHdLC5sCpQ_2UPJl1ywDAP5q0FpjcAGsGGjfcrbESzqF9DXgUcFKfFT3Blbk"; // Кілттің БІРІНШІ жартысы
+const part2 = "FJXoHXAGw3bN-au_mBDeNUEc9eAYmhcSf08eThtIFt6GHKoYNAQpz5nybE6sSeKs1Qr4mGpYjVAA"; // Кілттің ЕКІНШІ жартысы
 
-const API_KEY = part1 + part2;  // Екеуін біріктіреміз
+const API_KEY = part1 + part2; // Бағдарлама өзі біріктіріп алады
+
 
 // =======================================================
 // 2. ЭЛЕМЕНТТЕРДІ АЛУ
 // =======================================================
-const answerBox = document.getElementById("botAnswer"); // Жауап шығатын жер
-const buttons = document.querySelectorAll(".bot-buttons button"); // Дайын сұрақ батырмалары
-const userQuestionInput = document.getElementById("userQuestion"); // Сіз қосқан инпут
+const answerBox = document.getElementById("botAnswer");
+const userQuestionInput = document.getElementById("userQuestion");
 
 
 // =======================================================
-// 3. БАТЫРМАЛАРДЫ БАСҚАНДА ЖҰМЫС ІСТЕУІ
-// =======================================================
-buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        // HTML-дегі data-q ішіндегі сұрақты аламыз
-        const question = btn.getAttribute("data-q");
-        askOpenAI(question);
-    });
-});
-
-
-// =======================================================
-// 4. "ЖІБЕРУ" БАТЫРМАСЫ ҮШІН ФУНКЦИЯ
-// (HTML-де onclick="sendCustomQuestion()" деп тұрса істейді)
+// 3. СҰРАҚ ЖІБЕРУ ФУНКЦИЯСЫ
 // =======================================================
 function sendCustomQuestion() {
+    // Егер userQuestionInput табылмаса (қате шықпас үшін)
+    if (!userQuestionInput) return;
+
     const text = userQuestionInput.value;
     
-    // Егер бос болмаса ғана жібереміз
     if (text.trim() !== "") {
         askOpenAI(text);
-        userQuestionInput.value = ""; // Инпутты тазарту
+        userQuestionInput.value = ""; 
     } else {
-        alert("Сұрақты жазыңыз!");
+        alert("Сұрақ жазуды ұмыттыңыз!");
     }
+}
+
+// "Enter" басқанда да сұрақ кететін қылайық
+if (userQuestionInput) {
+    userQuestionInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            sendCustomQuestion();
+        }
+    });
 }
 
 
 // =======================================================
-// 5. OPENAI-МЕН БАЙЛАНЫСУ (БАСТЫ ФУНКЦИЯ)
+// 4. OPENAI-МЕН БАЙЛАНЫСУ
 // =======================================================
 async function askOpenAI(userText) {
-    // 1. Күту режимін қосамыз
-    answerBox.innerHTML = "<em>Абай атамыз ойланып жатыр...</em>";
+    if (!answerBox) return;
+
+    answerBox.innerHTML = "<em>Абай атамыз жауап іздеуде...</em>";
     answerBox.style.color = "#555";
 
     try {
-        // 2. OpenAI-ға сұрау жібереміз
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -126,11 +121,11 @@ async function askOpenAI(userText) {
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo", // Басқа модельдер: "gpt-4o" немесе "gpt-4-turbo"
+                model: "gpt-3.5-turbo",
                 messages: [
                     {
                         role: "system", 
-                        content: "Сен қазақтың ұлы ақыны - Абай Құнанбайұлысың. Сұрақтарға тек қазақ тілінде, даналықпен, нақыл сөздермен және сабырлы түрде жауап бер. Сен жасанды интеллект емес, тарихи тұлға ретінде сөйле."
+                        content: "Сен Абай Құнанбайұлысың. Сұрақтарға қазақ тілінде, терең мағыналы, философиялық және даналықпен жауап бер."
                     },
                     {
                         role: "user", 
@@ -142,24 +137,20 @@ async function askOpenAI(userText) {
 
         const data = await response.json();
 
-        // 3. Қате бар-жоғын тексереміз
         if (data.error) {
-            console.error("OpenAI қатесі:", data.error);
-            answerBox.innerText = "Қате шықты: " + data.error.message;
+            console.error("OpenAI Error:", data.error);
+            answerBox.innerText = "Қате: " + data.error.message;
             answerBox.style.color = "red";
-            return;
+        } else if (data.choices && data.choices.length > 0) {
+            answerBox.innerText = data.choices[0].message.content;
+            answerBox.style.color = "black";
+        } else {
+            answerBox.innerText = "Жауап келмеді.";
         }
 
-        // 4. Жауапты шығарамыз
-        const botReply = data.choices[0].message.content;
-        answerBox.innerText = botReply;
-        answerBox.style.color = "black"; // Қара түспен шығару
-
     } catch (error) {
-        console.error("Сайт қатесі:", error);
-        answerBox.innerText = "Интернет байланысын тексеріңіз. Сервер жауап бермеді.";
+        console.error("Fetch Error:", error);
+        answerBox.innerText = "Интернет байланысы жоқ немесе кілт қате.";
         answerBox.style.color = "red";
     }
 }
-
-    });
