@@ -110,7 +110,7 @@ if (userQuestionInput) {
 async function askOpenAI(userText) {
     if (!answerBox) return;
 
-    answerBox.innerHTML = "<em>Абай атамыз жауап іздеуде...</em>";
+    answerBox.innerHTML = "<em>AI жауап іздеуде...</em>";
     answerBox.style.color = "#555";
 
     try {
@@ -121,18 +121,23 @@ async function askOpenAI(userText) {
                 "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    {
-                        role: "system", 
-                        content: "Сен Абай Құнанбайұлысың. Сұрақтарға қазақ тілінде, терең мағыналы, философиялық және даналықпен жауап бер."
-                    },
-                    {
-                        role: "user", 
-                        content: userText
-                    }
-                ]
-            })
+               // ...
+body: JSON.stringify({
+    // ОСЫ ЖЕРДІ ӨЗГЕРТЕМІЗ (gpt-4o-mini қоямыз)
+    model: "gpt-4o-mini", 
+    
+    messages: [
+        {
+            role: "system", 
+            // Абай екенін ескертіп қоямыз, бірақ енді ол өзі-ақ дұрыс табады
+            content: "Сен қазақтың ұлы ақыны Абай Құнанбайұлысың. Сұрақтарға нақты тарихи деректермен, қазақ тілінде, даналықпен жауап бер."
+        },
+        {
+            role: "user", 
+            content: userText
+        }
+    ]
+})
         });
 
         const data = await response.json();
@@ -154,3 +159,4 @@ async function askOpenAI(userText) {
         answerBox.style.color = "red";
     }
 }
+
